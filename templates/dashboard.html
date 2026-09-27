@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">LIVE DEMO</div><h1>Emergency Command Center</h1><p>Operational view of the ResQGrid resource network.</p></div>
+  <a class="btn primary" href="{{ url_for('new_emergency') }}">+ New Emergency</a>
+</div>
+
+<section class="panel">
+<h2>🚨 Emergency queue</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Emergency</th><th>Priority</th><th>Status</th><th>Hospital</th><th>Ambulance</th><th></th></tr></thead>
+<tbody>
+{% for e in emergencies %}
+<tr>
+<td>#{{ e.id }}</td><td>{{ e.emergency_type }}<br><small>{{ e.patient_name }}</small></td>
+<td><span class="badge {{ e.priority|lower }}">{{ e.priority }}</span></td>
+<td>{{ e.status }}</td><td>{{ e.hospital_name or "Searching" }}</td><td>{{ e.ambulance_code or "Searching" }}</td>
+<td><a class="text-link" href="{{ url_for('emergency_detail', emergency_id=e.id) }}">Open →</a></td>
+</tr>
+{% else %}<tr><td colspan="7">No emergency requests yet.</td></tr>{% endfor %}
+</tbody></table></div>
+</section>
+
+<section class="two-col">
+<section class="panel">
+<h2>🏥 Hospital resources</h2>
+{% for h in hospitals %}
+<div class="status-row">
+  <div><strong>{{ h.name }}</strong><small>{{ h.specialist }}</small></div>
+  <form method="post" action="{{ url_for('update_hospital', hospital_id=h.id) }}" class="mini-form">
+    <label>ICU <input name="icu_beds" type="number" min="0" value="{{ h.icu_beds }}"></label>
+    <label>ER <input name="emergency_beds" type="number" min="0" value="{{ h.emergency_beds }}"></label>
+    <label class="check"><input name="emergency_available" type="checkbox" {% if h.emergency_available %}checked{% endif %}> ER open</label>
+    <button class="btn tiny" type="submit">Update</button>
+  </form>
+</div>
+{% endfor %}
+</section>
+
+<section class="panel">
+<h2>🚑 Ambulance fleet</h2>
+{% for a in ambulances %}
+<div class="status-row">
+  <div><strong>{{ a.code }}</strong><small>{{ a.type }}</small></div>
+  <form method="post" action="{{ url_for('update_ambulance', ambulance_id=a.id) }}" class="mini-form">
+    <select name="status"><option {% if a.status=='Available' %}selected{% endif %}>Available</option><option {% if a.status=='Busy' %}selected{% endif %}>Busy</option><option {% if a.status=='Assigned' %}selected{% endif %}>Assigned</option></select>
+    <button class="btn tiny" type="submit">Set</button>
+  </form>
+</div>
+{% endfor %}
+</section>
+</section>
+
+<section class="panel">
+<h2>🩸 Blood inventory</h2>
+<div class="blood-table">
+{% for b in blood %}
+<div><b>{{ b.name }}</b><span>{{ b.blood_group }}</span><strong>{{ b.units }}</strong></div>
+{% endfor %}
+</div>
+</section>
+{% endblock %}

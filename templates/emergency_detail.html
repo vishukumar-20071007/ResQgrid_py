@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="eyebrow">EMERGENCY #{{ emergency.id }}</div>
+    <h1>{{ emergency.emergency_type }} <span class="badge {{ emergency.priority|lower }}">{{ emergency.priority }}</span></h1>
+    <p>{{ emergency.patient_name }} · Status: <strong>{{ emergency.status }}</strong></p>
+  </div>
+  <a class="btn secondary" href="{{ url_for('dashboard') }}">Command Center</a>
+</div>
+
+<div class="detail-grid">
+  <section class="panel">
+    <h2>Emergency request</h2>
+    <div class="kv"><span>Blood</span><b>{{ emergency.blood_group or "Not specified" }}</b></div>
+    <div class="kv"><span>Specialist</span><b>{{ emergency.specialist or "Any suitable" }}</b></div>
+    <div class="kv"><span>Location</span><b>{{ "%.5f"|format(emergency.lat) }}, {{ "%.5f"|format(emergency.lng) }}</b></div>
+    <div class="kv"><span>Notes</span><b>{{ emergency.notes or "—" }}</b></div>
+    <div id="map" class="map"></div>
+  </section>
+
+  <section class="panel">
+    <h2>🏆 Recommended hospitals</h2>
+    <p class="muted">Score is a prototype heuristic, not a clinical decision.</p>
+    {% for h in recommendations %}
+    <div class="resource {% if loop.first %}recommended{% endif %}">
+      <div class="resource-top"><strong>{{ h.name }}</strong><span class="score">{{ h.score }}%</span></div>
+      <div class="chips">
+        <span>📍 {{ h.distance_km }} km</span><span>⏱️ ~{{ h.eta_min }} min</span>
+        <span>🛏️ {{ h.emergency_beds }} ER</span><span>🫀 {{ h.icu_beds }} ICU</span>
+        {% if h.specialist_match %}<span>✓ Specialist</span>{% endif %}
+        {% if h.trauma_match %}<span>✓ Trauma</span>{% endif %}
+      </div>
+      <small>{{ h.specialist }}</small>
+      {% if loop.first %}<div class="recommend-label">BEST DEMO MATCH</div>{% endif %}
+    </div>
+    {% endfor %}
+  </section>
+</div>
+
+<section class="panel">
+  <h2>🚑 Available ambulances</h2>
+  <form method="post" action="{{ url_for('assign_emergency', emergency_id=emergency.id) }}">
+    <div class="ambulance-grid">
+    {% for a in ambulances %}
+      <label class="select-card">
+        <input type="radio" name="ambulance_id" value="{{ a.id }}" {% if loop.first %}checked{% endif %}>
+        <strong>{{ a.code }}</strong><span>{{ a.type }}</span><small>{{ a.distance_km }} km · ~{{ a.eta_min }} min</small>
+      </label>
+    {% else %}
+      <p>No available demo ambulance currently.</p>
+    {% endfor %}
+    </div>
+    <input type="hidden" name="hospital_id" value="{{ recommendations[0].id if recommendations else '' }}">
+    <button class="btn primary" type="submit">Assign Recommended Hospital + Ambulance</button>
+  </form>
+  {% if emergency.status != 'Completed' %}
+  <form method="post" action="{{ url_for('complete_emergency', emergency_id=emergency.id) }}" class="inline-form">
+    <button class="btn secondary" type="submit">✓ Mark Emergency Completed</button>
+  </form>
+  {% endif %}
+</section>
+
+{% if emergency.blood_group %}
+<section class="panel">
+  <h2>🩸 Blood availability</h2>
+  <div id="bloodResults" class="blood-grid"><span class="muted">Loading blood-bank availability…</span></div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+const patient = [{{ emergency.lat }}, {{ emergency.lng }}];
+const map = L.map('map').setView(patient, 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, attribution:'© OpenStreetMap'}).addTo(map);
+L.marker(patient).addTo(map).bindPopup('<b>Emergency #{{ emergency.id }}</b><br>Patient location').openPopup();
+{% for h in recommendations %}
+L.marker([{{ h.lat }},{{ h.lng }}]).addTo(map).bindPopup('<b>{{ h.name|e }}</b><br>Score: {{ h.score }}%');
+{% endfor %}
+
+{% if emergency.blood_group %}
+fetch('{{ url_for("api_blood", blood_group=emergency.blood_group) }}')
+  .then(r=>r.json()).then(data=>{
+    const el=document.getElementById('bloodResults');
+    el.innerHTML = data.length ? data.map(x=>`<div class="blood-card"><b>${x.name}</b><span>${x.units} units of ${x.blood_group}</span><small>${x.phone}</small></div>`).join('') : '<span class="muted">No positive demo inventory found.</span>';
+  });
+{% endif %}
+</script>
+{% endblock %}

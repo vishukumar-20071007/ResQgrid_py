@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div>
+    <div class="eyebrow">EMERGENCY RESOURCE COORDINATION</div>
+    <h1>Right resource.<br><span>Right place. Right time.</span></h1>
+    <p>ResQGrid connects patients, ambulances, hospitals and medical resources into one coordination network.</p>
+    <div class="actions">
+      <a class="btn primary" href="{{ url_for('new_emergency') }}">🚨 Raise Emergency</a>
+      <a class="btn secondary" href="{{ url_for('dashboard') }}">Open Command Center</a>
+    </div>
+  </div>
+  <div class="hero-card">
+    <div class="pulse">● LIVE NETWORK</div>
+    <h3>Emergency pipeline</h3>
+    <div class="pipeline"><b>Patient</b><span>→</span><b>Ambulance</b><span>→</span><b>Hospital</b><span>→</span><b>Blood / Pharmacy</b></div>
+    <p>Smart matching ranks resources instead of simply returning the nearest hospital.</p>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="stat"><strong>{{ stats.hospitals }}</strong><span>Hospitals</span></div>
+  <div class="stat"><strong>{{ stats.ambulances }}</strong><span>Available ambulances</span></div>
+  <div class="stat"><strong>{{ stats.blood_banks }}</strong><span>Blood banks</span></div>
+  <div class="stat"><strong>{{ stats.active }}</strong><span>Active emergencies</span></div>
+</section>
+
+<section class="grid-3">
+  <article class="feature"><div>🚑</div><h3>Ambulance matching</h3><p>Find the closest available ambulance and estimate arrival time.</p></article>
+  <article class="feature"><div>🏥</div><h3>Smart hospital ranking</h3><p>Combine distance, beds, ICU, emergency status, specialist and trauma capability.</p></article>
+  <article class="feature"><div>🩸</div><h3>Resource discovery</h3><p>Check nearby blood-bank inventory and build the coordination trail.</p></article>
+</section>
+
+<div class="notice"><strong>Prototype safety note:</strong> This demo uses seeded sample data. Do not treat its resource availability or ETA as real-world information.</div>
+{% endblock %}

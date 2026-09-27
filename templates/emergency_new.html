@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">STEP 01</div><h1>Raise an emergency</h1><p>Create a simulated emergency request for the ResQGrid network.</p></div>
+  <a class="btn secondary" href="{{ url_for('index') }}">← Home</a>
+</div>
+
+<form method="post" class="form-card">
+  <div class="form-grid">
+    <label>Patient name
+      <input name="patient_name" placeholder="e.g. Patient 101" required>
+    </label>
+    <label>Emergency type
+      <select name="emergency_type">
+        <option>Accident</option><option>Heart Emergency</option><option>Severe Bleeding</option>
+        <option>Breathing Problem</option><option>Burns</option><option>Other</option>
+      </select>
+    </label>
+    <label>Priority
+      <select name="priority">
+        <option>Critical</option><option selected>High</option><option>Medium</option><option>Low</option>
+      </select>
+    </label>
+    <label>Blood group (optional)
+      <select name="blood_group">
+        <option value="">Not specified</option>
+        <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+        <option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+      </select>
+    </label>
+    <label>Required specialist
+      <select name="specialist">
+        <option value="">No specific specialist</option>
+        <option>Trauma</option><option>Cardiology</option><option>Neurology</option>
+        <option>Orthopedics</option><option>Pediatrics</option><option>General</option>
+      </select>
+    </label>
+    <label>Latitude
+      <input id="lat" name="lat" value="28.9780" required>
+    </label>
+    <label>Longitude
+      <input id="lng" name="lng" value="77.7100" required>
+    </label>
+    <div class="location-box">
+      <button type="button" class="btn secondary small" onclick="getLocation()">📍 Use my location</button>
+      <span id="locationStatus">Demo coordinates loaded.</span>
+    </div>
+  </div>
+  <label>Notes
+    <textarea name="notes" rows="4" placeholder="Example: accident near main road; simulated demo data only."></textarea>
+  </label>
+  <button class="btn primary full" type="submit">Find Resources & Create Emergency →</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+function getLocation() {
+  const status = document.getElementById('locationStatus');
+  if (!navigator.geolocation) { status.textContent = "Geolocation not supported."; return; }
+  status.textContent = "Requesting location…";
+  navigator.geolocation.getCurrentPosition(
+    p => { document.getElementById('lat').value=p.coords.latitude.toFixed(6); document.getElementById('lng').value=p.coords.longitude.toFixed(6); status.textContent="Location captured."; },
+    () => { status.textContent="Location permission denied; using demo coordinates."; }
+  );
+}
+</script>
+{% endblock %}
