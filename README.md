@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ResQGrid 🚑
 
 **Real-Time Emergency Resource Coordination Network**
@@ -143,3 +144,6 @@ The first launch automatically creates sample resources around Meerut. Delete `r
 ## Disclaimer
 
 Do not connect this prototype to real patient data, real hospital systems, real blood inventory or real emergency dispatch without appropriate security, privacy, regulatory, operational and medical review.
+=======
+# ResQgrid_py
+>>>>>>> e0978f9ea42203fa46f0498085edb4e9b22fc0ab
